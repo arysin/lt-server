@@ -1,0 +1,70 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+compileJava.options.encoding = 'UTF-8'
+
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+
+dependencies {
+    implementation("org.languagetool:language-$lang:$ltVersion") {
+        exclude module: 'hunspell'
+        exclude module: 'language-detector'
+        exclude module: 'lucene-core'
+        exclude group: 'org.apache.lucene'
+        exclude group: 'io.grpc'
+    }
+
+    implementation("org.languagetool:languagetool-server:$ltVersion") {
+        exclude module: '*-pos-dict'
+        exclude module: 'language-all'
+    }
+
+    // next 3 hardcoded in languagetool-server (language detection)
+    implementation("org.languagetool:language-es:$ltVersion") {
+        exclude module: 'hunspell'
+        exclude module: 'language-detector'
+        exclude module: 'lucene-core'
+        exclude group: 'org.apache.lucene'
+        exclude group: 'io.grpc'
+    }
+    implementation("org.languagetool:language-ca:$ltVersion") {
+        exclude module: 'hunspell'
+        exclude module: 'language-detector'
+        exclude module: 'lucene-core'
+        exclude group: 'org.apache.lucene'
+        exclude group: 'io.grpc'
+    }
+    implementation("org.languagetool:language-pt:$ltVersion") {
+        exclude module: 'hunspell'
+        exclude module: 'language-detector'
+        exclude module: 'lucene-core'
+        exclude group: 'org.apache.lucene'
+        exclude group: 'io.grpc'
+    }
+    // so it does not pull android version
+    implementation group: 'com.google.guava', name: 'guava', version: '31.1-jre'
+}
+
+task copyRuntimeLibs(type: Copy) {
+    into "${buildDir}/lib"
+    from configurations.runtimeClasspath
+
+    doFirst {
+        delete files("${buildDir}/lib")
+    }
+}
+
+application {
+    mainClass = "org.languagetool.server.HTTPServer"
+}
+
+run {
+    args "--config config.properties --port $port --allow-origin".split()
+}
